@@ -250,3 +250,63 @@ let differentiate (input: string) : string =
         exprToString derivativeSimplified
     with
     | ex -> "Error differentiating: " + ex.Message
+
+
+let sameSign(a:double, b:double) = (a * b) >=0;
+
+
+let rec bisectionHelper(funcExpr: string, a: float, b: float, symTable: Map<string,v>, iterations: int) : string =
+    
+    let evalAt x = 
+        let result = plotEval(symTable, funcExpr, [x])
+        let (_, yVal) = result.Head 
+        yVal  
+    
+    let fa = evalAt a
+    let fb = evalAt b
+    
+    
+    if iterations > 100 then
+        sprintf "Max iterations reached. Best estimate: x = %.6f" ((a+b)/2.0)
+    
+    
+    else if abs(b - a) < 0.00001 then
+        sprintf "Root found: x = %.6f" ((a+b)/2.0)
+    
+    else
+        let midx = (a + b) / 2.0
+        let fmid = evalAt midx
+        
+        
+        if abs(fmid) < 0.00001 then
+            sprintf "Root found: x = %.6f" midx
+        
+        
+        else if fa * fmid < 0.0 then
+            
+            bisectionHelper(funcExpr, a, midx, symTable, iterations + 1)
+        else
+            
+            bisectionHelper(funcExpr, midx, b, symTable, iterations + 1)
+
+// Main function
+let bisection(funcExpr: string, a: float, b: float, symTable: Map<string,v>) : string =
+    let evalAt x = 
+        let result = plotEval(symTable, funcExpr, [x])
+        let (_, yVal) = result.Head 
+        yVal  
+    let fa = evalAt a
+    let fb = evalAt b
+    
+    if fa * fb >= 0.0 then
+        "Error: f(a) and f(b) must have opposite signs"
+    else
+        bisectionHelper(funcExpr, a, b, symTable, 0)
+
+        
+
+
+   
+   
+
+    
