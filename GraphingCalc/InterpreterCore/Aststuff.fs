@@ -4,7 +4,7 @@ module Aststuff
 open System
 open System.Collections.Generic
 open InterpreterCore
-
+exception RootFindingException of string
 
 type Expr =
     | ConstE of float
@@ -255,7 +255,9 @@ let differentiate (input: string) : string =
 let sameSign(a:double, b:double) = (a * b) >=0;
 
 
-let rec bisectionHelper(funcExpr: string, a: float, b: float, symTable: Map<string,v>, iterations: int) : string =
+
+
+let rec bisectionHelper (funcExpr: string) (a: float) (b: float) (symTable: Map<string,v>) (iterations: int) : float =
     
     let evalAt x = 
         let result = plotEval(symTable, funcExpr, [x])
@@ -264,49 +266,64 @@ let rec bisectionHelper(funcExpr: string, a: float, b: float, symTable: Map<stri
     
     let fa = evalAt a
     let fb = evalAt b
-    
-    
+
     if iterations > 100 then
-        sprintf "Max iterations reached. Best estimate: x = %.6f" ((a+b)/2.0)
-    
-    
-    else if abs(b - a) < 0.00001 then
-        sprintf "Root found: x = %.6f" ((a+b)/2.0)
-    
+        raise (RootFindingException (sprintf "Max iterations reached. Best estimate: x = %.6f" ((a+b)/2.0)))
+    elif abs(b - a) < 0.00001 then
+        (a + b) / 2.0
     else
         let midx = (a + b) / 2.0
         let fmid = evalAt midx
         
-        
-        if abs(fmid) < 0.00001 then
-            sprintf "Root found: x = %.6f" midx
-        
-        
-        else if fa * fmid < 0.0 then
-            
-            bisectionHelper(funcExpr, a, midx, symTable, iterations + 1)
+        if abs(fmid) < 0.00000001 then
+            midx
+        elif fa * fmid < 0.0 then
+            bisectionHelper funcExpr a midx symTable (iterations + 1)
         else
-            
-            bisectionHelper(funcExpr, midx, b, symTable, iterations + 1)
+            bisectionHelper funcExpr midx b symTable (iterations + 1)
 
-// Main function
-let bisection(funcExpr: string, a: float, b: float, symTable: Map<string,v>) : string =
-    let evalAt x = 
+
+// Main bisection function
+let bisection (funcExpr: string) (a: float) (b: float) (symTable: Map<string, v>) : float =
+    let evalAt x =
         let result = plotEval(symTable, funcExpr, [x])
-        let (_, yVal) = result.Head 
-        yVal  
+        let (_, yVal) = result.Head
+        yVal
+
     let fa = evalAt a
     let fb = evalAt b
-    
+
     if fa * fb >= 0.0 then
-        "Error: f(a) and f(b) must have opposite signs"
+        raise (RootFindingException "f(a) and f(b) must have opposite signs")
     else
-        bisectionHelper(funcExpr, a, b, symTable, 0)
-
-        
+        bisectionHelper funcExpr a b symTable 0
 
 
-   
+let rec allRootsBisect (funcExpr: string) (current: float) (last: float) (interval: float) (symTable: Map<string, v>) : float list =
+    if current >= last then
+        []
+    else
+        let evalAt x =
+            let result = plotEval(symTable, funcExpr, [x])
+            let (_, yVal) = result.Head
+            yVal
+
+        let next = min (current + interval) last
+        let f1 = evalAt current
+        let f2 = evalAt next
+
+        let rest = allRootsBisect funcExpr next last interval symTable
+
+        if f1 * f2 < 0.0 then
+            bisection funcExpr current next symTable :: rest
+        else
+            rest
+
+
+let findAllRoots (funcExpr: string) (a: float) (b: float) (symTable: Map<string, v>) : float list =
+    let interval = (b - a) / 100.0
+    allRootsBisect funcExpr a b interval symTable
+
    
 
     

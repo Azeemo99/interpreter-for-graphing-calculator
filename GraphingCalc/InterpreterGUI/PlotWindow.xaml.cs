@@ -29,6 +29,7 @@ namespace InterpreterGUI
         private const double rightMargin = 20;
         private const double topMargin = 20;
         private const double bottomMargin = 40;
+        private List<double> currentRoots = new List<double>();
 
         public PlotWindow(FSharpMap<string, InterpreterCore.v> sharedTable)
         {
@@ -267,11 +268,15 @@ namespace InterpreterGUI
             view.YTop = wy + (view.YTop - wy) * zoom;
 
             PlotFunction(FunctionBox.Text);
+            foreach (var root in currentRoots)
+                DrawRoot(root);
+
         }
         private void PlotCanvas_MouseDown(object sender, MouseButtonEventArgs e)
         {
             if (e.LeftButton == MouseButtonState.Pressed)
                 lastMousePos = e.GetPosition(PlotCanvas);
+
         }
 
         private void PlotCanvas_MouseMove(object sender, MouseEventArgs e)
@@ -294,6 +299,9 @@ namespace InterpreterGUI
 
             lastMousePos = cur;
             PlotFunction(FunctionBox.Text);
+            foreach (var root in currentRoots)
+                DrawRoot(root);
+
         }
 
         private void PlotCanvas_MouseUp(object sender, MouseButtonEventArgs e)
@@ -494,25 +502,61 @@ namespace InterpreterGUI
         }
 
 
-        private void RootButton_click(object sender, RoutedEventArgs e) {
-
-            double a;
-            double b;
-            bool aSuccess = double.TryParse(aBox.Text, out a);
-            bool bSuccess = double.TryParse(bBox.Text, out b);
-
-            if (!aSuccess || !bSuccess)
+        private void RootButton_click(object sender, RoutedEventArgs e)
+        {
+            try
             {
-                MessageBox.Show("Please enter valid numbers");
-                return;
-            }
-            else {
                 string funcExpr = FunctionBox.Text;
-                string result = Aststuff.bisection(funcExpr,a ,b, symTable);
-                ResultBox.Text = result;
+                double left = view.XLeft;
+                double right = view.XRight;
 
+                var rootsArray = Aststuff.findAllRoots(funcExpr, left, right, symTable);
+
+                if (rootsArray.Length == 0)
+                {
+                    ResultBox.Text = "No roots on screen";
+                    return;
+                }
+
+                List<double> roots_double = new List<double>(rootsArray);
+                ResultBox.Text = string.Join(" ", roots_double);
+                drawRoots(roots_double);
+            }
+            catch (Exception ex)
+            {
+                ResultBox.Text = $"Error: {ex.Message}";
             }
         }
+
+
+
+
+
+        private void drawRoots(List<double> xroots)
+        {
+            currentRoots = new List<double>(xroots);
+            foreach (double x in currentRoots)
+            {
+                DrawRoot(x);
+            }
+        }
+
+        private void DrawRoot(double x)
+        {
+            Point screenPoint = WorldToScreen(new Point(x, 0));
+            Ellipse dot = new Ellipse
+            {
+                Width = 5,
+                Height = 5,
+                Fill = Brushes.Blue,
+                Stroke = Brushes.Blue,
+            };
+            Canvas.SetLeft(dot, screenPoint.X - dot.Width / 2);
+            Canvas.SetTop(dot, screenPoint.Y - dot.Height / 2);
+            PlotCanvas.Children.Add(dot);
+        }
+
+
 
         private void FunctionBox_Copy_TextChanged(object sender, TextChangedEventArgs e)
         {
