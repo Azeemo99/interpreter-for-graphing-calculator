@@ -272,6 +272,7 @@ namespace InterpreterGUI
                 DrawRoot(root);
 
         }
+        //hi
         private void PlotCanvas_MouseDown(object sender, MouseButtonEventArgs e)
         {
             if (e.LeftButton == MouseButtonState.Pressed)
