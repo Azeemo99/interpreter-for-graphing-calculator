@@ -27,7 +27,7 @@ let rec parseStatement (tokens: terminal list) : Expr * terminal list =
         match tokens with
         | Id name :: Equ :: tail ->
             let (expr, rest) = parseE tail
-            // represent assignment as Add(Var name, expr)? Or handle separately
+            
             expr, rest
         | _ ->
             parseE tokens
@@ -326,4 +326,70 @@ let findAllRoots (funcExpr: string) (a: float) (b: float) (symTable: Map<string,
 
    
 
+   
+// Integration functions
+// suppporting 
+(*
     
+*)
+(*Needs to support 
+-Constants
+-powers
+
+
+*)
+
+
+let rec inte expr var =
+    match expr with
+    | ConstE c -> MulE(ConstE c, VarE var)
+    | VarE v when v = var ->DivE(PowE(VarE v, ConstE 2.0), ConstE 2.0)
+    | VarE v ->MulE(VarE v, VarE var)
+    | AddE(a,b) ->AddE(inte a var, inte b var)
+    | SubE(a,b) ->SubE(inte a var, inte b var)
+    | MulE(ConstE c, e)
+    | MulE(e, ConstE c) -> MulE(ConstE c, inte e var)
+    | PowE(VarE v, ConstE -1.0) when v = var ->FuncE(Ln, VarE v)
+    | PowE(VarE v, ConstE n) when v = var ->DivE(PowE(VarE v, AddE(ConstE n, ConstE 1.0)),AddE(ConstE n, ConstE 1.0))
+    | _ ->
+        failwith "Integration not implemented for this expression"
+
+
+let intergrate (input: string) : string =
+    try
+        let tokens = lexer input
+        let ast, _ = parseStatement tokens
+        let astSimplified = simplify ast
+        let integral = inte astSimplified "x"
+        let integralsimp = simplify integral
+        
+        let rec exprToString expr =
+            let wrapIfNeeded e =
+                match e with
+                | AddE(_,_) | SubE(_,_) -> "(" + exprToString e + ")"
+                | _ -> exprToString e
+
+            match expr with
+            | ConstE f -> 
+                if f < 0.0 then "(" + string f + ")" else string f
+            | VarE v -> v
+            | AddE(a,b) -> exprToString a + " + " + exprToString b
+            | SubE(a,b) -> exprToString a + " - " + exprToString b
+            | MulE(ConstE 1.0, e) | MulE(e, ConstE 1.0) -> exprToString e
+            | MulE(ConstE c, e) | MulE(e, ConstE c) -> 
+                if c = 1.0 then exprToString e
+                elif c = -1.0 then "-" + exprToString e
+                else string c + wrapIfNeeded e
+            | MulE(a,b) -> wrapIfNeeded a + wrapIfNeeded b
+            | DivE(a,b) -> wrapIfNeeded a + "/" + wrapIfNeeded b
+            | PowE(a,b) -> wrapIfNeeded a + "^" + wrapIfNeeded b
+            | NegE a -> "-" + wrapIfNeeded a
+            | FuncE(f,arg) -> f.ToString() + "(" + exprToString arg + ")"
+            | RemE(a,b) -> wrapIfNeeded a + "%" + wrapIfNeeded b
+
+
+
+        
+        exprToString integralsimp
+    with
+    | ex -> "Error Integrating: " + ex.Message

@@ -558,6 +558,18 @@ namespace InterpreterGUI
         }
 
 
+        private void InteButton_click(object sender, EventArgs e) {
+            string input = FunctionBox.Text;
+
+            
+
+            String result = Aststuff.intergrate(input);
+            
+            ResultBox.Text = result;
+
+        }
+
+
 
         private void FunctionBox_Copy_TextChanged(object sender, TextChangedEventArgs e)
         {

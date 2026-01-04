@@ -9,7 +9,10 @@ module InterpreterCore
 open System
 open System.Collections.Generic
 type builtInFunc = 
-    | Sin | Cos | Tan | Exp | Log | Sqrt 
+    | Sin | Cos | Tan | Exp | Log | Sqrt | Ln
+
+type consts = 
+    | PI | E
 
 type Expr =
     | Const of float
@@ -21,13 +24,14 @@ type Expr =
     | Pow of Expr * Expr
     | Neg of Expr
     | Func of builtInFunc * Expr
+    
 
 type v = 
     | IVal of int
     | FVal of float
 
 type terminal = 
-    Add | Sub | Mul | Div | Lpar | Rpar | Num of int | Rem | Pow | Flo of float | Equ | Id of string| Func of builtInFunc
+    Add | Sub | Mul | Div | Lpar | Rpar | Num of int | Rem | Pow | Flo of float | Equ | Id of string| Func of builtInFunc  | Const of consts
 
 let symbolTable : Map <String, v> = Map.empty
 
@@ -111,7 +115,12 @@ let lexer input =
                                           Func Log :: scan idStr
                                        else if (id.ToLower() = "sqrt") then 
                                           Func Sqrt :: scan idStr
-
+                                       else if (id.ToLower() = "ln") then 
+                                          Func Ln :: scan idStr
+                                       else if (id.ToLower() = "pi") then
+                                          Const PI :: scan idStr
+                                       else if (id.ToLower() = "e") then
+                                          Const E :: scan idStr
                                        else 
                                           Id id :: scan idStr
                                        
@@ -139,7 +148,7 @@ let implicitMult token =
     | Func _-> true
     | Id _ -> true
     | Lpar -> true
-    
+    | Const _ -> true
     | _ -> false
 
 //Type checking methods for operations 
@@ -211,6 +220,12 @@ let log(v1 : v ) =
     match (v1) with
     | (IVal i1) -> FVal (Math.Log10((float) i1))
     | (FVal f1) -> FVal (Math.Log10(f1))
+
+let ln(v1 : v ) = 
+    match (v1) with
+    | (IVal i1) -> FVal (Math.Log((float) i1))
+    | (FVal f1) -> FVal (Math.Log(f1))
+
 let sqrt(v1: v) = 
     match (v1) with 
     | (IVal i1) -> FVal (Math.Sqrt((float) i1))
@@ -257,6 +272,7 @@ let parser (tList) =
         | Sub :: tail -> NR tail
         | Flo value :: tail -> tail
         | Id name :: tail -> tail
+        | Const cons :: tail -> tail
         | Num value :: tail -> tail
         | Lpar :: tail -> match E tail with 
                           | Rpar :: more -> more
@@ -264,6 +280,7 @@ let parser (tList) =
         | Func ftype :: Lpar :: tail -> match E tail with 
                                         | Rpar :: more -> more
                                         | _ -> raise parseError
+
         
         | _ -> raise parseError
     E tList
@@ -341,7 +358,12 @@ let parseNeval (symbolTable : Map<String, v>, tList:  terminal list) : (terminal
             match symbolTable.TryFind(name) with
             | Some value -> (tail, value, symbolTable)
             | None -> raise parseError
-         
+        | Const PI :: tail ->
+            (tail, FVal Math.PI, symbolTable)
+
+        | Const E :: tail ->
+            (tail, FVal Math.E, symbolTable)
+ 
             
         
         | Num value :: tail -> (tail, IVal value, symbolTable)
@@ -362,6 +384,7 @@ let parseNeval (symbolTable : Map<String, v>, tList:  terminal list) : (terminal
                                             | Exp -> (tail, exp(tval), symTable)
                                             | Log -> (tail, log(tval), symTable)
                                             | Sqrt -> (tail, sqrt(tval), symTable)
+                                            | Ln -> (tail, ln(tval), symbolTable)
                                             | _ -> raise parseError     
                                        | _ -> raise parseError
                                     
@@ -483,9 +506,7 @@ let rec recDiff (tokens, value) =
         ([], value)
 
 
-    
-let rec diff expression =
-    "a"
+
 
 
 
@@ -512,31 +533,7 @@ let evalPoly (expr:string) (xMin:float) (xMax:float) (dx:float) =
 
 
 
-//Connection to the WPF
-[<Class>]
-type Wrapper() =
-    // symbol table stored in a reference cell, not mutable
-    static let symRef = ref symbolTable   // symbolTable comes from the interpreter
 
-    static member Evaluate(input: string) : string =
-        let (success, result, updatedTable) = eval(!symRef, input)
-        symRef := updatedTable   // update reference to new map, no `mutable` keyword used
-        result
-
-    //parse a polynomial string like "1 0 -2" -> float list [1.0; 0.0; -2.0]
-    static member ParsePolynomial(input: string) : float[] =
-        input.Split(' ')
-        |> Array.map (fun s -> float (s.Trim()))
-
-    //evaluate polynomial at points x from start to end with step
-    static member EvalPoly(coeffs: float[], xStart: float, xEnd: float, step: float) : (float*float)[] =
-        let mutable xs = []
-        let mutable x = xStart
-        while x <= xEnd do
-            let y = coeffs |> Array.mapi (fun i c -> c * (x ** float i)) |> Array.sum
-            xs <- (x, y)::xs
-            x <- x + step
-        xs |> List.rev |> List.toArray
 
 
 

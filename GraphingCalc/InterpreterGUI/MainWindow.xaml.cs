@@ -18,6 +18,7 @@ namespace InterpreterGUI
     {
 
         private FSharpMap<string, InterpreterCore.v> symTable = MapModule.Empty<string, InterpreterCore.v>();
+        
         public MainWindow()
         {
             InitializeComponent();
