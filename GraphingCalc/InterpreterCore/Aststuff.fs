@@ -19,6 +19,8 @@ type Expr =
     | FuncE of builtInFunc * Expr
     | AssignE of string * Expr
 
+let isE (x: float) =
+    abs (x - Math.E) < 1e-9
 
 
 
@@ -81,7 +83,8 @@ let rec parseStatement (tokens: terminal list) : Expr * terminal list =
             NegE expr, rest
         | Num n :: tail -> ConstE (float n), tail
         | Flo f :: tail -> ConstE f, tail
-        | Id name :: tail -> VarE name, tail
+        | Const E :: tail -> ConstE Math.E, tail
+        | Id name :: tail -> VarE name, tail    
         | Lpar :: tail ->
             let expr, rest = parseE tail
             match rest with
@@ -185,7 +188,7 @@ let rec diff expr var =
     | SubE(a,b) -> SubE(diff a var, diff b var)
     | MulE(a,b) -> AddE(MulE(diff a var, b), MulE(a, diff b var))
     | DivE(a,b) -> DivE(SubE(MulE(diff a var, b), MulE(a, diff b var)), PowE(b, ConstE 2.0))
-    
+    | PowE(ConstE a, v) when isE a -> MulE(diff v var, FuncE(Exp, v))
     // Power rule: u^n (n constant)
     | PowE(u, ConstE n) -> MulE(ConstE n, MulE(PowE(u, ConstE(n-1.0)), diff u var))
     
@@ -340,19 +343,46 @@ let findAllRoots (funcExpr: string) (a: float) (b: float) (symTable: Map<string,
 *)
 
 
+
 let rec inte expr var =
     match expr with
+    // ∫ c dx = c*x
     | ConstE c -> MulE(ConstE c, VarE var)
-    | VarE v when v = var ->DivE(PowE(VarE v, ConstE 2.0), ConstE 2.0)
-    | VarE v ->MulE(VarE v, VarE var)
-    | AddE(a,b) ->AddE(inte a var, inte b var)
-    | SubE(a,b) ->SubE(inte a var, inte b var)
+
+    // ∫ x dx = x^2 / 2
+    | VarE v when v = var -> DivE(PowE(VarE v, ConstE 2.0), ConstE 2.0)
+
+    // ∫ f(x) dx where x is not the variable -> treat as constant
+    | VarE _ -> MulE(expr, VarE var)
+
+    // sum and difference rules
+    | AddE(a,b) -> AddE(inte a var, inte b var)
+    | SubE(a,b) -> SubE(inte a var, inte b var)
+
+    // constant multiple rule
     | MulE(ConstE c, e)
     | MulE(e, ConstE c) -> MulE(ConstE c, inte e var)
-    | PowE(VarE v, ConstE -1.0) when v = var ->FuncE(Ln, VarE v)
-    | PowE(VarE v, ConstE n) when v = var ->DivE(PowE(VarE v, AddE(ConstE n, ConstE 1.0)),AddE(ConstE n, ConstE 1.0))
-    | _ ->
-        failwith "Integration not implemented for this expression"
+
+    // ∫ x^n dx, including negative powers
+    | PowE(VarE v, ConstE -1.0) when v = var -> FuncE(Ln, VarE v)
+    | PowE(VarE v, ConstE n) when v = var -> 
+        DivE(PowE(VarE v, AddE(ConstE n, ConstE 1.0)), AddE(ConstE n, ConstE 1.0))
+
+    // ∫ a^x dx
+    | PowE(ConstE a, VarE v) when v = var ->
+        if isE a then
+            PowE(ConstE Math.E, VarE v)   // keep as e^x
+        else
+            DivE(PowE(ConstE a, VarE v), FuncE(Ln, ConstE a))
+
+    // ∫ e^(k*x) dx
+    | FuncE(Exp, MulE(ConstE k, VarE v)) when v = var ->
+        DivE(FuncE(Exp, MulE(ConstE k, VarE v)), ConstE k)
+
+    // fallback
+    | _ -> failwith "Integration not implemented for this expression"
+
+
 
 
 let intergrate (input: string) : string =
@@ -371,7 +401,8 @@ let intergrate (input: string) : string =
 
             match expr with
             | ConstE f -> 
-                if f < 0.0 then "(" + string f + ")" else string f
+                if isE(f) then "e" 
+                elif f < 0.0 then "(" + string f + ")" else string f
             | VarE v -> v
             | AddE(a,b) -> exprToString a + " + " + exprToString b
             | SubE(a,b) -> exprToString a + " - " + exprToString b

@@ -558,16 +558,45 @@ namespace InterpreterGUI
         }
 
 
-        private void InteButton_click(object sender, EventArgs e) {
+        private void InteButton_click(object sender, EventArgs e)
+        {
             string input = FunctionBox.Text;
+            string startText = xStartBox.Text;
+            string endText = xEndBox.Text;
 
-            
+            bool isStartNumber = double.TryParse(startText, out double startValue);
+            bool isEndNumber = double.TryParse(endText, out double endValue);
 
-            String result = Aststuff.intergrate(input);
-            
-            ResultBox.Text = result;
+            try
+            {
+                if (isStartNumber && isEndNumber)
+                {
+                    // Compute definite integral
+                    string integralExpr = Aststuff.intergrate(input);
 
+                    // Evaluate integral at bounds using evalAtX
+                    double definiteResult = InterpreterCore.evalAtX(integralExpr, InterpreterCore.symbolTable, endValue)
+                                            - InterpreterCore.evalAtX(integralExpr, InterpreterCore.symbolTable, startValue);
+
+                    ResultBox.Text = definiteResult.ToString();
+                }
+                else
+                {
+                    // Compute indefinite integral
+                    string result = Aststuff.intergrate(input);
+                    //ResultBox.Text = startText;
+                    ResultBox.Text = result;
+                }
+            }
+            catch (Exception ex)
+            {
+                ResultBox.Text = "Error: " + ex.Message;
+            }
         }
+
+
+
+
 
 
 
