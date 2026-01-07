@@ -50,6 +50,13 @@ namespace InterpreterGUI
 
 
         }
+        private void InputBox_GotFocus(object sender, RoutedEventArgs e)
+        {
+            if (InputBox.Text == "Enter expression")
+            {
+                InputBox.Text = "";
+            }
+        }
         private void btnOpenPlot_Click(object sender, RoutedEventArgs e)
         {
             PlotWindow plotWindow = new PlotWindow(symTable);

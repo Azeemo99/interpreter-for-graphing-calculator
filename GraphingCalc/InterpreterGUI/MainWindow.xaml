@@ -9,7 +9,7 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <TextBox x:Name="InputBox" Grid.Row="0" Height="30" Text="Enter expression" Margin="0,0,142,391" Grid.RowSpan="3"/>
+        <TextBox x:Name="InputBox" Grid.Row="0" Height="30" Text="Enter expression" GotFocus="InputBox_GotFocus" Margin="0,0,142,391" Grid.RowSpan="3"/>
         <Button Content="Evaluate" Grid.Row="2" Margin="592,0,0,391" Height="30" Click="Evaluate_Click"/>
         <TextBox x:Name="ResultBox" Grid.Row="2" Height="30" IsReadOnly="True" Margin="0,35,362,356" TextChanged="ResultBox_TextChanged"/>
         <TextBox x:Name="ErrorBox" Grid.Row="2" Height="30" IsReadOnly="True" Margin="372,35,0,356"/>
