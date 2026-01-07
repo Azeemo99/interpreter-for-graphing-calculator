@@ -13,20 +13,20 @@
 
         <!-- Top controls -->
         <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="0 0 0 10">
-            <TextBox x:Name="FunctionBox" Width="300" Text="Enter an expression" Margin="0,0,10,0"/>
+            <TextBox x:Name="FunctionBox" Width="300" Text="Enter an expression" GotFocus="FunctionBox_GotFocus" Margin="0,0,10,0"/>
             <Button x:Name="DrawButton" Content="Draw" Width="54" Click="DrawButton_Click"/>
             <Button x:Name="DiffButton" Content="Differentiate" Click="DiffButton_click" Width="77"/>
             <Button x:Name="IntefButton" Content="Integrate" Click="InteButton_click" Width="77"/>
-            <TextBox x:Name="xStartBox" Text="Start x" Width="150" Margin="20,0,10,0"/>
-            <TextBox x:Name="xEndBox" Text="End x" Width="150" Margin="10,0,20,0"/>
+            <TextBox x:Name="xStartBox" Text="Start x" GotFocus="FunctionBox_GotFocus" Width="150" Margin="20,0,10,0"/>
+            <TextBox x:Name="xEndBox" Text="End x" GotFocus="FunctionBox_GotFocus" Width="150" Margin="10,0,20,0"/>
         </StackPanel>
 
         <!-- Differentiation controls -->
         <StackPanel Orientation="Horizontal" Grid.Row="1" Margin="0 0 0 10">
             <TextBox x:Name="ResultBox" Text="Result" Width="299" IsReadOnly="True"/>
             <Button x:Name="rootfinder" Content="Find root" Width="54" Click="RootButton_click"/>
-            <TextBox x:Name="aBox" Text="Enter a" Width="127" Margin="20,0,10,0"/>
-            <TextBox x:Name="bBox" Text="Enter b" Width="150"/>
+            <TextBox x:Name="aBox" Text="Enter a" GotFocus="FunctionBox_GotFocus" Width="127" Margin="20,0,10,0"/>
+            <TextBox x:Name="bBox" Text="Enter b" GotFocus="FunctionBox_GotFocus" Width="150"/>
             <TextBox x:Name="Root" Text="Root" Width="299" IsReadOnly="True"/>
 
 

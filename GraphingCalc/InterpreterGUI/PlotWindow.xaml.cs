@@ -1,12 +1,16 @@
 using Microsoft.FSharp.Collections;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.Metrics;
 using System.Linq;
+using System.Printing;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace InterpreterGUI
 {
@@ -207,6 +211,38 @@ namespace InterpreterGUI
                 MessageBox.Show("Error plotting function: " + ex.Message);
             }
         }
+        private void FunctionBox_GotFocus(object sender, RoutedEventArgs e)
+        {
+            // 1. Identify which specific box was clicked
+            if (sender is TextBox tb)
+            {
+                // 2. Define the list of placeholder texts
+                string[] placeholders = { "Enter an expression", "Enter a", "Enter b", "Start x", "End x" };
+
+                // 3. Only clear THIS box if its text is in the placeholder list
+                if (placeholders.Contains(tb.Text))
+                {
+                    tb.Text = "";
+                }
+            }
+        }
+        //private void FunctionBox_GotFocus(object sender, RoutedEventArgs e)
+
+        //{
+
+        //    //deleting default text
+
+        //    if (FunctionBox.Text == "Enter an expression") { FunctionBox.Text = ""; }
+
+        //    if (aBox.Text == "Enter a") { aBox.Text = ""; }
+
+        //    if (bBox.Text == "Enter b") { bBox.Text = ""; }
+
+        //    if (xStartBox.Text == "Start x") { xStartBox.Text = ""; }
+
+        //    if (xEndBox.Text == "End x") { xEndBox.Text = ""; }
+
+        //}
         private Point WorldToScreen(Point p)
         {
             double canvasWidth = PlotCanvas.ActualWidth;
