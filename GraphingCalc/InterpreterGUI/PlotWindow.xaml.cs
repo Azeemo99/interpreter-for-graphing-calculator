@@ -15,6 +15,8 @@ namespace InterpreterGUI
 
     {
         private Point? lastMousePos = null;
+        private List<Point> lastCurvePoints = new List<Point>();
+
         private class View
         {
             public double XLeft = -10;
@@ -195,6 +197,7 @@ namespace InterpreterGUI
                     PlotCanvas.Children.Add(polyline);
 
 
+                lastCurvePoints = smoothPoints;
 
                 DrawAxisTicks(xStart, xEnd, yMin, yMax, canvasWidth, canvasHeight, xAxisPos);
                
@@ -558,6 +561,45 @@ namespace InterpreterGUI
         }
 
 
+
+        private void drawDefIntegralArea(double xStart, double xEnd)
+        {
+            if (lastCurvePoints.Count == 0)
+                return;
+
+            // start and end
+            double a = Math.Min(xStart, xEnd);
+            double b = Math.Max(xStart, xEnd);
+
+            // take all curve points between x = a and x = b (areaPoints)
+            var areaPoints = lastCurvePoints
+                .Where(p => p.X >= a && p.X <= b)
+                .ToList();
+
+            if (areaPoints.Count < 2)
+                return;
+
+            // create polygon
+            Polygon area = new Polygon
+            {
+                Fill = new SolidColorBrush(Color.FromArgb(80, 30, 144, 255)), // translucent blue
+                StrokeThickness = 0
+            };
+
+            // add curve points to polygon
+            foreach (var p in areaPoints) 
+            {
+                area.Points.Add(WorldToScreen(p));
+            }
+
+            // add bottom corners (b, 0) for bottom right and (a, 0) for bottom left
+            area.Points.Add(WorldToScreen(new Point(b, 0)));
+            area.Points.Add(WorldToScreen(new Point(a, 0)));
+
+            // add polygon to bottom layer of PlotCanvas (underneath everything and translucent)
+            PlotCanvas.Children.Insert(0, area);
+        }
+
         private void InteButton_click(object sender, EventArgs e)
         {
             string input = FunctionBox.Text;
@@ -579,6 +621,9 @@ namespace InterpreterGUI
                                             - InterpreterCore.evalAtX(integralExpr, InterpreterCore.symbolTable, startValue);
 
                     ResultBox.Text = definiteResult.ToString();
+
+                    // Draw area under curve
+                    drawDefIntegralArea(startValue, endValue);
                 }
                 else
                 {
