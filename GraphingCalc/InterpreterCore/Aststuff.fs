@@ -18,6 +18,7 @@ type Expr =
     | NegE of Expr
     | FuncE of builtInFunc * Expr
     | AssignE of string * Expr
+    | IfE of Expr * Expr * Expr
 
 let isE (x: float) =
     abs (x - Math.E) < 1e-9
@@ -125,6 +126,10 @@ let rec evalAST (expr: Expr) (symTable: Map<string,v>) : v =
     | AssignE(name, valueExpr) ->
         let v = evalAST valueExpr symTable
         v  // optionally, update symbol table outside this function
+    | IfE(cond, thenPart, elsePart) ->
+        match evalAST cond symTable with
+        | IVal 0 | FVal 0.0 -> evalAST elsePart symTable
+        | _ -> evalAST thenPart symTable
 
 
 let rec simplify expr =

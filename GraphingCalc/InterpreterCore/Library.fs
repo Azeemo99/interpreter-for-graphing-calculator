@@ -31,7 +31,7 @@ type v =
     | FVal of float
 
 type terminal = 
-    Add | Sub | Mul | Div | Lpar | Rpar | Num of int | Rem | Pow | Flo of float | Equ | Id of string| Func of builtInFunc  | Const of consts
+    Add | Sub | Mul | Div | Lpar | Rpar | Num of int | Rem | Pow | Flo of float | Equ | Id of string| Func of builtInFunc  | Const of consts | If | Then | Else
 
 let symbolTable : Map <String, v> = Map.empty
 

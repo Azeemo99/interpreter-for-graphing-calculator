@@ -380,7 +380,17 @@ let eval (symTable, input: string) =
     with
     | ex -> (false, ex.Message, symTable)
 
+let testExpression expr =
+    printfn "Testing: %s" expr
+    let tokens = lexer expr
+    printfn "Tokens: %A" tokens
+    let result = eval (Map.empty, expr)
+    printfn "Result: %A" result
+    result
 
+testExpression "3+4"
+testExpression "x=5"
+testExpression "x+2"
 
 
 
@@ -404,5 +414,3 @@ let main argv =
     let initialSymTable = Map.empty<string, v>
     repl initialSymTable
     0
-
-
