@@ -213,36 +213,20 @@ namespace InterpreterGUI
         }
         private void FunctionBox_GotFocus(object sender, RoutedEventArgs e)
         {
-            // 1. Identify which specific box was clicked
+            // identify box
             if (sender is TextBox tb)
             {
-                // 2. Define the list of placeholder texts
+                // list of possible texts
                 string[] placeholders = { "Enter an expression", "Enter a", "Enter b", "Start x", "End x" };
 
-                // 3. Only clear THIS box if its text is in the placeholder list
+                // clears clicked box
                 if (placeholders.Contains(tb.Text))
                 {
                     tb.Text = "";
                 }
             }
         }
-        //private void FunctionBox_GotFocus(object sender, RoutedEventArgs e)
-
-        //{
-
-        //    //deleting default text
-
-        //    if (FunctionBox.Text == "Enter an expression") { FunctionBox.Text = ""; }
-
-        //    if (aBox.Text == "Enter a") { aBox.Text = ""; }
-
-        //    if (bBox.Text == "Enter b") { bBox.Text = ""; }
-
-        //    if (xStartBox.Text == "Start x") { xStartBox.Text = ""; }
-
-        //    if (xEndBox.Text == "End x") { xEndBox.Text = ""; }
-
-        //}
+      
         private Point WorldToScreen(Point p)
         {
             double canvasWidth = PlotCanvas.ActualWidth;

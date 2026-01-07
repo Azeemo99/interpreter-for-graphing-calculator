@@ -27,28 +27,38 @@ namespace InterpreterGUI
 
         private void Evaluate_Click(object sender, RoutedEventArgs e)
         {
-
             string input = InputBox.Text;
+            // Call the F# evaluator; Item1 is Success (bool), Item2 is Result/Error message
             var s = InterpreterCore.eval(symTable, input);
-            if (s.Item1)
-            { 
+
+            if (s.Item1) // Success Case
+            {
+                // 1. Update UI Content
                 ResultBox.Text = s.Item2;
                 symTable = s.Item3;
-                ErrorBox.Text = "";
-                foreach (Window w in this.OwnedWindows) 
+
+                // 2. Toggle Visibility: Show Result, Hide Error
+                ResultBox.Visibility = Visibility.Visible;
+                ErrorBox.Visibility = Visibility.Collapsed;
+
+                // 3. Sync with Plot Window
+                foreach (Window w in this.OwnedWindows)
                 {
-                    if (w is PlotWindow pw) {
+                    if (w is PlotWindow pw)
+                    {
                         pw.UpdateSymbolTable(symTable);
                     }
                 }
             }
-            else
+            else // Error Case
             {
+                // 1. Update UI Content
                 ErrorBox.Text = s.Item2;
-                ResultBox.Text = "";
+
+                // 2. Toggle Visibility: Show Error, Hide Result
+                ErrorBox.Visibility = Visibility.Visible;
+                ResultBox.Visibility = Visibility.Collapsed;
             }
-
-
         }
         private void InputBox_GotFocus(object sender, RoutedEventArgs e)
         {
