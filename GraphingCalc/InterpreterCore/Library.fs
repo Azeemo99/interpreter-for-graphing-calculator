@@ -102,27 +102,22 @@ let lexer input =
         | '^':: tail -> Pow :: scan tail
         | '=' :: tail -> Equ :: scan tail
         | c :: tail when isblank c -> scan tail
-        | c :: tail when isLetter c -> let (idStr, id) = scString(tail, sprintf "%c" c)
-                                       if (id.ToLower() = "sin") then 
-                                          Func Sin :: scan idStr
-                                       else if (id.ToLower() = "cos") then
-                                          Func Cos :: scan idStr
-                                       else if (id.ToLower() = "tan") then 
-                                          Func Tan :: scan idStr
-                                       else if (id.ToLower() = "exp") then 
-                                          Func Exp :: scan idStr
-                                       else if (id.ToLower() = "log") then 
-                                          Func Log :: scan idStr
-                                       else if (id.ToLower() = "sqrt") then 
-                                          Func Sqrt :: scan idStr
-                                       else if (id.ToLower() = "ln") then 
-                                          Func Ln :: scan idStr
-                                       else if (id.ToLower() = "pi") then
-                                          Const PI :: scan idStr
-                                       else if (id.ToLower() = "e") then
-                                          Const E :: scan idStr
-                                       else 
-                                          Id id :: scan idStr
+        | c :: tail when isLetter c -> 
+            let (idStr, id) = scString(tail, sprintf "%c" c)
+            match id.ToLower() with
+            | "if"   -> If   :: scan idStr
+            | "then" -> Then :: scan idStr
+            | "else" -> Else :: scan idStr
+            | "sin"  -> Func Sin  :: scan idStr
+            | "cos"  -> Func Cos  :: scan idStr
+            | "tan"  -> Func Tan  :: scan idStr
+            | "exp"  -> Func Exp  :: scan idStr
+            | "log"  -> Func Log  :: scan idStr
+            | "sqrt" -> Func Sqrt :: scan idStr
+            | "ln"   -> Func Ln   :: scan idStr
+            | "pi"   -> Num 3     :: scan idStr // Simple version of PI for now
+            | "e"    -> Num 2     :: scan idStr // Simple version of E for now
+            | _      -> Id id     :: scan idStr
                                        
 
         | c :: tail when isdigit c -> let (iStr, iVal, hasPoi) = scNumber(tail, sprintf "%c" c, false) 
@@ -387,6 +382,27 @@ let parseNeval (symbolTable : Map<String, v>, tList:  terminal list) : (terminal
                                             | Ln -> (tail, ln(tval), symbolTable)
                                             | _ -> raise parseError     
                                        | _ -> raise parseError
+        | If :: tail ->
+            //parsing condition
+            let (rest1, cond, sym1) = E tail
+            match rest1 with
+            | Then :: tail2 ->
+                //then branch
+                let (rest2, thenVal, sym2) = E tail2
+                match rest2 with
+                | Else :: tail3 ->
+                    //else branch
+                    let (rest3, elseVal, sym3) = E tail3
+            
+                    //value
+                    let finalVal = 
+                        match cond with
+                        | IVal 0 | FVal 0.0 -> elseVal
+                        | _ -> thenVal
+                
+                    (rest3, finalVal, sym3)
+                | _ -> raise parseError
+            | _ -> raise parseError
                                     
 
         

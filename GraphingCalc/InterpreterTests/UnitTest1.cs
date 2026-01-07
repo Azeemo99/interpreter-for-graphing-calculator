@@ -3,9 +3,13 @@ namespace InterpreterTests
     public class UnitTest1
     {
         [Fact]
-        public void Test1()
+        public void Test_ConditionalLogic()
         {
-            
+            string input = "if (1) then 100 else 200";
+
+            var result = InterpreterCore.eval(InterpreterCore.symbolTable, input);
+
+            Assert.Contains("100", result.Item2);
         }
     }
 }
