@@ -520,7 +520,7 @@ namespace InterpreterGUI
 
             // Call into F#
             
-            String result = Aststuff.differentiate(input);
+            String result = AST.differentiate(input);
             // Display result
             ResultBox.Text = result;
         }
@@ -534,7 +534,7 @@ namespace InterpreterGUI
                 double left = view.XLeft;
                 double right = view.XRight;
 
-                var rootsArray = Aststuff.findAllRoots(funcExpr, left, right, symTable);
+                var rootsArray = AST.findAllRoots(funcExpr, left, right, symTable);
 
                 if (rootsArray.Length == 0)
                 {
@@ -634,7 +634,7 @@ namespace InterpreterGUI
                 if (isStartNumber && isEndNumber)
                 {
                     // Compute definite integral
-                    string integralExpr = Aststuff.intergrate(input);
+                    string integralExpr = AST.intergrate(input);
 
                     // Evaluate integral at bounds using evalAtX
                     double definiteResult = InterpreterCore.evalAtX(integralExpr, InterpreterCore.symbolTable, endValue)
@@ -648,7 +648,7 @@ namespace InterpreterGUI
                 else
                 {
                     // Compute indefinite integral
-                    string result = Aststuff.intergrate(input);
+                    string result = AST.intergrate(input);
                     //ResultBox.Text = startText;
                     ResultBox.Text = result;
                 }
