@@ -461,65 +461,6 @@ let plotEval (symbolTable : Map<string, v>, input: string, xVals: float list) =
             | FVal f -> f
         yield (x, yFloat)]
 
-//diff an x value 
-
-let diffXVal(n1, id, n2) = 
-    if n2 = 2 then 
-        $"{n1 * n2}x"
-    elif n2 = 1 then 
-        $"{n1 * n2}"
-    else 
-        $"{n1 * n2}x^{n2-1}"
-
-
-let rec recDiff (tokens, value) =
-    match tokens with
-
-    // --- ax^(-n) with coefficient ---
-    | Num n1 :: Id name :: Pow :: Sub :: Num n2 :: tail ->
-        recDiff(tail, value + diffXVal(n1, name, -n2))
-
-    // --- ax^n with coefficient ---
-    | Num n1 :: Id name :: Pow :: Num n2 :: tail ->
-        recDiff(tail, value + diffXVal(n1, name, n2))
-
-    // --- x^(-n) ---
-    | Id name :: Pow :: Sub :: Num n2 :: tail ->
-        recDiff(tail, value + diffXVal(1, name, -n2))
-
-    // --- x^n ---
-    | Id name :: Pow :: Num n2 :: tail ->
-        recDiff(tail, value + diffXVal(1, name, n2))
-
-    // --- ax ---
-    | Num n1 :: Id name :: tail ->
-        recDiff(tail, value + diffXVal(n1, name, 1))
-
-    // --- x ---
-    | Id name :: tail ->
-        recDiff(tail, value + diffXVal(1, name, 1))
-
-    // --- constants ---
-    | Num _ :: tail ->
-        recDiff(tail, value + "0")
-
-    | Flo _ :: tail ->
-        recDiff(tail, value + "0")
-
-    // --- operators ---
-    | Add :: tail ->
-        recDiff(tail, value + "+")
-
-    | Sub :: tail ->
-        recDiff(tail, value + "-")
-
-    // --- end of token stream ---
-    | [] ->
-        ([], value)
-
-    // --- unexpected token ---
-    | _ ->
-        ([], value)
 
 
 

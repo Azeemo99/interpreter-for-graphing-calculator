@@ -351,40 +351,36 @@ let findAllRoots (funcExpr: string) (a: float) (b: float) (symTable: Map<string,
 
 let rec inte expr var =
     match expr with
-    // ∫ c dx = c*x
+    
     | ConstE c -> MulE(ConstE c, VarE var)
 
-    // ∫ x dx = x^2 / 2
+    
     | VarE v when v = var -> DivE(PowE(VarE v, ConstE 2.0), ConstE 2.0)
 
-    // ∫ f(x) dx where x is not the variable -> treat as constant
     | VarE _ -> MulE(expr, VarE var)
 
-    // sum and difference rules
     | AddE(a,b) -> AddE(inte a var, inte b var)
     | SubE(a,b) -> SubE(inte a var, inte b var)
 
-    // constant multiple rule
+    
     | MulE(ConstE c, e)
     | MulE(e, ConstE c) -> MulE(ConstE c, inte e var)
 
-    // ∫ x^n dx, including negative powers
+    
     | PowE(VarE v, ConstE -1.0) when v = var -> FuncE(Ln, VarE v)
     | PowE(VarE v, ConstE n) when v = var -> 
         DivE(PowE(VarE v, AddE(ConstE n, ConstE 1.0)), AddE(ConstE n, ConstE 1.0))
 
-    // ∫ a^x dx
     | PowE(ConstE a, VarE v) when v = var ->
         if isE a then
-            PowE(ConstE Math.E, VarE v)   // keep as e^x
+            PowE(ConstE Math.E, VarE v)   
         else
             DivE(PowE(ConstE a, VarE v), FuncE(Ln, ConstE a))
 
-    // ∫ e^(k*x) dx
     | FuncE(Exp, MulE(ConstE k, VarE v)) when v = var ->
         DivE(FuncE(Exp, MulE(ConstE k, VarE v)), ConstE k)
 
-    // fallback
+    
     | _ -> failwith "Integration not implemented for this expression"
 
 
