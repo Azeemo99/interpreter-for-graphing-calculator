@@ -8,7 +8,7 @@
 
   <ItemGroup>
 	<Compile Include="Library.fs" />
-    <Compile Include="Aststuff.fs" />
+    <Compile Include="AST.fs" />
     
   </ItemGroup>
 

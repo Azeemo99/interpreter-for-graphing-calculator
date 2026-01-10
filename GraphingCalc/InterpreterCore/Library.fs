@@ -1,6 +1,6 @@
 ﻿
 module InterpreterCore
-//Advanced programing Tom  
+//Advanced programing 
 // Simple Interpreter in F#
 // Author: R.J. Lapeer 
 // Date: 23/10/2022
