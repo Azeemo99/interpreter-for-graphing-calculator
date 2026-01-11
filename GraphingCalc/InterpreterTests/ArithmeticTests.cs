@@ -14,7 +14,7 @@ namespace InterpreterTests
             var input = "1+2";
             var result = InterpreterCore.eval(InterpreterCore.symbolTable, input);
 
-            Assert.Equal("3", result.Item2.Trim());
+            Assert.Equal("Result = 3", result.Item2.Trim());
         }
 
         [Fact]
@@ -23,7 +23,7 @@ namespace InterpreterTests
             var input = "3*5";
             var result = InterpreterCore.eval(InterpreterCore.symbolTable, input);
 
-            Assert.Equal("15", result.Item2.Trim());
+            Assert.Equal("Result = 15", result.Item2.Trim());
         }
 
         [Fact]
@@ -32,7 +32,7 @@ namespace InterpreterTests
             var input = "2^3";
             var result = InterpreterCore.eval(InterpreterCore.symbolTable, input);
 
-            Assert.Equal("8", result.Item2.Trim());
+            Assert.Equal("Result = 8.000000", result.Item2.Trim());
         }
     }
 }

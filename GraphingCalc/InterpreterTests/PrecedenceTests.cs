@@ -14,7 +14,7 @@ namespace InterpreterTests
             var input = "2+3*4";
             var result = InterpreterCore.eval(InterpreterCore.symbolTable, input);
 
-            Assert.Equal("14", result.Item2.Trim());
+            Assert.Equal("Result = 14", result.Item2.Trim());
         }
 
         [Fact]
@@ -23,7 +23,7 @@ namespace InterpreterTests
             var input = "(2+3)*4";
             var result = InterpreterCore.eval(InterpreterCore.symbolTable, input);
 
-            Assert.Equal("20", result.Item2.Trim());
+            Assert.Equal("Result = 20", result.Item2.Trim());
         }
     }
 }

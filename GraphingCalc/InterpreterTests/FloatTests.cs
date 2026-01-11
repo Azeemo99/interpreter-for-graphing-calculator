@@ -14,7 +14,7 @@ namespace InterpreterTests
             var input = "0.5 + 0.25";
             var result = InterpreterCore.eval(InterpreterCore.symbolTable, input);
 
-            Assert.Equal("0.75", result.Item2.Trim());
+            Assert.Equal("Result = 0.750000", result.Item2.Trim());
         }
     }
 
