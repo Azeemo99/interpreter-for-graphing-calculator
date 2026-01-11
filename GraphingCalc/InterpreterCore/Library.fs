@@ -2,6 +2,25 @@
 
 open System
 open System.Collections.Generic
+// Grammar in BNF:
+// <STATEMENT> = ID "=" <E> |  <E>
+// <E>        ::= <T> <Eopt>
+// <Eopt>     ::= "+" <T> <Eopt> | "-" <T> <Eopt> | <empty>
+// <T>        ::= <F> <Topt>
+// <Topt>     ::= "*" <NR> <Topt> | "/" <NR> <Topt> | "%" <NR> <Topt>| <empty>
+// <F>        ::= <NR> <Powopt>
+// <Powopt>   ::= "^" <F> <Powopt>
+// <NR>       ::= "Num" <value> 
+//              | "Flo" <value>
+//              | "Id" <name>
+//              | "Const" <constant"
+//              | "(" <E> ")"
+//              | "-" <NR> 
+//              | Func "(" <E> ")"
+//              | "If" <E> "Then" <E> "Else" <E>
+
+
+
 type builtInFunc = 
     | Sin | Cos | Tan | Exp | Log | Sqrt | Ln
 
@@ -220,15 +239,6 @@ let sqrt(v1: v) =
     | (IVal i1) -> FVal (Math.Sqrt((float) i1))
     | (FVal f1) -> FVal (Math.Sqrt(f1))
 
-// Grammar in BNF:
-// <STATEMENT> = ID "=" <E> |  <E>
-// <E>        ::= <T> <Eopt>
-// <Eopt>     ::= "+" <T> <Eopt> | "-" <T> <Eopt> | <empty>
-// <Powopt>   ::= "^" <F> <Powopt>
-// <F>        ::= <NR> <Powopt>
-// <T>        ::= <F> <Topt>
-// <Topt>     ::= "*" <NR> <Topt> | "/" <NR> <Topt> | "%" <NR> <Topt>| <empty>
-// <NR>       ::= "Num" <value> | "(" <E> ")" | "-" <NR> | "Flo" <Value> | Func "(" <E> ")"
 
 
 //Non-Evaluating Parser
