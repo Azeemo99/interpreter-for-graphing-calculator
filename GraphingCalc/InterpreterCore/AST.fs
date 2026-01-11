@@ -131,7 +131,7 @@ let rec evalAST (expr: Expr) (symTable: Map<string,v>) : v =
         | IVal 0 | FVal 0.0 -> evalAST elsePart symTable
         | _ -> evalAST thenPart symTable
 
-
+//simplify the expression allowing easier differentiation and integration 
 let rec simplify expr =
     match expr with
     | AddE(a,b) -> 
@@ -183,7 +183,7 @@ let rec simplify expr =
 
 
 
-
+//differentiation helper function 
 let rec diff expr var =
     match expr with
     | ConstE _ -> ConstE 0.0
@@ -306,7 +306,7 @@ let bisection (funcExpr: string) (a: float) (b: float) (symTable: Map<string, v>
     else
         bisectionHelper funcExpr a b symTable 0
 
-
+//Function to detect all the roots 
 let rec allRootsBisect (funcExpr: string) (current: float) (last: float) (interval: float) (symTable: Map<string, v>) : float list =
     if current >= last then
         []
@@ -335,20 +335,7 @@ let findAllRoots (funcExpr: string) (a: float) (b: float) (symTable: Map<string,
    
 
    
-// Integration functions
-// suppporting 
-(*
-    
-*)
-(*Needs to support 
--Constants
--powers
-
-
-*)
-
-
-
+//helper function for integration 
 let rec inte expr var =
     match expr with
     
@@ -385,7 +372,7 @@ let rec inte expr var =
 
 
 
-
+//integration function called by the c#
 let intergrate (input: string) : string =
     try
         let tokens = lexer input
