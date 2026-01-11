@@ -1,6 +1,4 @@
-﻿
-
-module AST
+﻿module AST
 open System
 open System.Collections.Generic
 open InterpreterCore

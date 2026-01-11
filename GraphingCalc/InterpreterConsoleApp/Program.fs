@@ -1,10 +1,4 @@
-﻿
-module InterpreterCore
-//Advanced programing
-// Simple Interpreter in F#
-// Author: R.J. Lapeer 
-// Date: 23/10/2022
-// Reference: Peter Sestoft, Grammars and parsing with F#, Tech. Report
+﻿module InterpreterCore
 
 open System
 open System.Collections.Generic

@@ -1,6 +1,6 @@
 namespace InterpreterTests
 {
-    public class UnitTest1
+    public class ConditionalLogicTests
     {
         [Fact]
         public void Test_ConditionalLogic()
