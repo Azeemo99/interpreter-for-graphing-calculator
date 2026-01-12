@@ -385,6 +385,64 @@ let testExpression expr =
 testExpression "3+4"
 testExpression "x=5"
 testExpression "x+2"
+type TestCase =
+    { Expr : string
+      Expected : string
+      Comment : string }
+
+let arithmeticTests =
+    [
+        { Expr = "5 * 3 + (2 * 3 - 2)/2 + 6"; Expected = "23"; Comment = "basic arithmetic" }
+        { Expr = "9 - 3 - 2"; Expected = "4"; Comment = "left associativity" }
+        { Expr = "10/3"; Expected = "3"; Comment = "int division" }
+        { Expr = "10/3.0"; Expected = "3.333333"; Comment = "float division" }
+        { Expr = "10%3"; Expected = "1"; Comment = "modulo" }
+        { Expr = "10 - -2"; Expected = "12"; Comment = "unary minus" }
+        { Expr = "-2 + 10"; Expected = "8"; Comment = "unary minus lhs" }
+        { Expr = "3 * 5^(-1 + 3) - 2^2 * -3"; Expected = "87"; Comment = "power precedence" }
+        { Expr = "-3^2"; Expected = "9"; Comment = "unary vs power precedence" }
+        { Expr = "-7%3"; Expected = "-1"; Comment = "mod precedence" }
+        { Expr = "2 * 3^2"; Expected = "18"; Comment = "pow precedence" }
+        { Expr = "(((3 * 2 - -2)))"; Expected = "8"; Comment = "parentheses" }
+        { Expr = "-((3 * 5 - 2 * 3))"; Expected = "-9"; Comment = "negated expression" }
+
+        // Assignment persists across inputs
+        { Expr = "x = 3"; Expected = "3"; Comment = "variable assignment" }
+        { Expr = "(2 * x) - x^2 * 5"; Expected = "-39"; Comment = "use assigned variable" }
+        { Expr = "(2 * x) - x^2 * 5/2"; Expected = "-16.5"; Comment = "mixed int/float precedence" }
+        { Expr = "(2 * x) - x^2 * (5/2)"; Expected = "-12"; Comment = "grouped division" }
+        { Expr = "(2 * x) - x^2 * 5%2"; Expected = "5"; Comment = "mod in expression" }
+        { Expr = "(2 * x) - x^2 * (5%2)"; Expected = "-3"; Comment = "grouped mod" }
+    ]
+
+let runTests tests =
+    printfn "=============================="
+    printfn " Running Interpreter Tests"
+    printfn "=============================="
+
+    let mutable symTable = Map.empty<string, v>
+
+    tests
+    |> List.iteri (fun i t ->
+        let (ok, resultStr, newSymTable) = eval (symTable, t.Expr)
+        symTable <- newSymTable
+
+        let actual =
+            if ok then
+                resultStr.Replace("Result = ", "")
+            else
+                "ERROR"
+
+        let pass = actual.StartsWith(t.Expected)
+
+        printfn "[%02d] %s" (i + 1) t.Expr
+        printfn "     Expected : %s" t.Expected
+        printfn "     Actual   : %s" actual
+        printfn "     Result   : %s (%s)\n"
+            (if pass then "PASS" else "FAIL")
+            t.Comment
+    )
+
 
 
 
@@ -404,7 +462,7 @@ let rec repl (symTable: Map<string, v>) =
 
 [<EntryPoint>]
 let main argv =
-    Console.WriteLine("Simple Interpreter!!")
-    let initialSymTable = Map.empty<string, v>
-    repl initialSymTable
+    Console.WriteLine("Simple Interpreter - Test Mode")
+    runTests arithmeticTests
     0
+

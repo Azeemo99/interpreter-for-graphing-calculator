@@ -19,7 +19,7 @@ open System.Collections.Generic
 //              | Func "(" <E> ")"
 //              | "If" <E> "Then" <E> "Else" <E>
 
-
+let divZeroError = System.Exception("Divide by zero error!")
 
 type builtInFunc = 
     | Sin | Cos | Tan | Exp | Log | Sqrt | Ln
@@ -128,8 +128,8 @@ let lexer input =
             | "log"  -> Func Log  :: scan idStr
             | "sqrt" -> Func Sqrt :: scan idStr
             | "ln"   -> Func Ln   :: scan idStr
-            | "pi"   -> Num 3     :: scan idStr // Simple version of PI for now
-            | "e"    -> Num 2     :: scan idStr // Simple version of E for now
+            | "pi"   -> Num 3     :: scan idStr 
+            | "e"    -> Num 2     :: scan idStr 
             | _      -> Id id     :: scan idStr
                                        
 
@@ -448,13 +448,11 @@ let eval (symTable, input: string) =
 
 let plotEval (symbolTable : Map<string, v>, input: string, xVals: float list) =
     let tokens = lexer input
-    // Handle two cases:
-    // Case 1: starts with y = ...
-    // Case 2: just an expression (constant or function)
+    
     let exprTokens =
         match tokens with
         | Id "y" :: Equ :: tail -> tail
-        | _ -> tokens  // use tokens directly if no "y ="
+        | _ -> tokens  // use tokens if there is no y = 
     
     [for x in xVals do
         let temp = symbolTable.Add("x", FVal x)

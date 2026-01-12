@@ -3,6 +3,10 @@
     open System.Collections.Generic
     open InterpreterCore
     exception RootFindingException of string
+    let diffError = System.Exception("Differentiation error")
+    let rootError = System.Exception("Root finding error")
+    let inteError = System.Exception("Integration error")
+    let evalError = System.Exception("Evaluation error")
 
     type Expr =
         | ConstE of float
@@ -102,7 +106,7 @@
         | VarE name -> 
             match symTable.TryFind(name) with
             | Some value -> value
-            | None -> failwith $"Variable {name} not found"
+            | None -> raise evalError
         | AddE(a,b) -> add(evalAST a symTable, evalAST b symTable)
         | SubE(a,b) -> sub(evalAST a symTable, evalAST b symTable)
         | MulE(a,b) -> mul(evalAST a symTable, evalAST b symTable)
@@ -123,13 +127,13 @@
             | Sqrt -> sqrt(evalAST arg symTable)
         | AssignE(name, valueExpr) ->
             let v = evalAST valueExpr symTable
-            v  // optionally, update symbol table outside this function
+            v  
         | IfE(cond, thenPart, elsePart) ->
             match evalAST cond symTable with
             | IVal 0 | FVal 0.0 -> evalAST elsePart symTable
             | _ -> evalAST thenPart symTable
 
-    //simplify the expression allowing easier differentiation and integration 
+    //simplify the expression allowing  differentiation and integration 
     let rec simplify expr =
         match expr with
         | AddE(a,b) -> 
@@ -163,8 +167,8 @@
         | PowE(a,b) ->
             let a', b' = simplify a, simplify b
             match a', b' with
-            | _, ConstE 1.0 -> a'          // x^1 -> x
-            | PowE(x, ConstE m), ConstE n -> PowE(x, ConstE(m*n)) // (x^a)^b -> x^(a*b)
+            | _, ConstE 1.0 -> a'         
+            | PowE(x, ConstE m), ConstE n -> PowE(x, ConstE(m*n))
             | ConstE x, ConstE y -> ConstE (x ** y)
             | _ -> PowE(a', b')
         | NegE a ->
@@ -192,13 +196,13 @@
         | MulE(a,b) -> AddE(MulE(diff a var, b), MulE(a, diff b var))
         | DivE(a,b) -> DivE(SubE(MulE(diff a var, b), MulE(a, diff b var)), PowE(b, ConstE 2.0))
         | PowE(ConstE a, v) when isE a -> MulE(diff v var, FuncE(Exp, v))
-        // Power rule: u^n (n constant)
+        
         | PowE(u, ConstE n) -> MulE(ConstE n, MulE(PowE(u, ConstE(n-1.0)), diff u var))
     
-        // Power rule: a^v (a constant)
+        
         | PowE(ConstE a, v) -> MulE(MulE(PowE(ConstE a, v), FuncE(Log, ConstE a)), diff v var)
     
-        // General power rule: u^v
+        
         | PowE(u, v) -> 
             let du = diff u var
             let dv = diff v var
@@ -214,10 +218,10 @@
             | Exp -> MulE(dArg, FuncE(Exp, arg))
             | Log -> DivE(dArg, arg)
             | Sqrt -> DivE(dArg, MulE(ConstE 2.0, FuncE(Sqrt, arg)))
-            | _ -> failwith "Function derivative not implemented"
+            | _ -> raise diffError
         | AssignE(_, e) -> diff e var
 
-
+    //differentiation function called by c#
     let differentiate (input: string) : string =
         try
             let tokens = lexer input
@@ -255,7 +259,7 @@
         
             exprToString derivativeSimplified
         with
-        | ex -> "Error differentiating: " + ex.Message
+        | ex -> raise diffError
 
 
     let sameSign(a:double, b:double) = (a * b) >=0;
@@ -274,7 +278,7 @@
         let fb = evalAt b
 
         if iterations > 100 then
-            raise (RootFindingException (sprintf "Max iterations reached. Best estimate: x = %.6f" ((a+b)/2.0)))
+            raise rootError
         elif abs(b - a) < 0.00001 then
             (a + b) / 2.0
         else
@@ -300,7 +304,7 @@
         let fb = evalAt b
 
         if fa * fb >= 0.0 then
-            raise (RootFindingException "f(a) and f(b) must have opposite signs")
+            raise rootError
         else
             bisectionHelper funcExpr a b symTable 0
 
@@ -366,7 +370,7 @@
             DivE(FuncE(Exp, MulE(ConstE k, VarE v)), ConstE k)
 
     
-        | _ -> failwith "Integration not implemented for this expression"
+        | _ -> raise inteError
 
 
 
@@ -409,4 +413,4 @@
         
             exprToString integralsimp
         with
-        | ex -> "Error Integrating: " + ex.Message
+        | ex -> raise inteError
