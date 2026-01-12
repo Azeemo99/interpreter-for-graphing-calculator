@@ -57,15 +57,15 @@ namespace InterpreterGUI
             double yMax = view.YTop;
             try
             {
-                // --- 1. Build x samples ---
+                // Build x samples
                 double step = (view.XRight - view.XLeft) / 300;
                 List<double> xVals = new List<double>();
                 for (double x = xStart; x <= xEnd; x += step)
                     xVals.Add(x);
 
-                var fsharpXVals = Microsoft.FSharp.Collections.ListModule.OfSeq(xVals);
+                var fsharpXVals = ListModule.OfSeq(xVals);
 
-                // --- 2. Call F# plotEval ---
+                // Call F# plotEval
                 var result = InterpreterCore.plotEval(symTable, funcExpr, fsharpXVals);
 
                 
@@ -80,7 +80,7 @@ namespace InterpreterGUI
                     return;
                 }
 
-                // --- 4. Check for horizontal line ---
+                // Check for horizontal line
                 List<Point> smoothPoints;
                 if (rawPoints.All(p => p.Y == rawPoints[0].Y))
                 {
@@ -111,7 +111,7 @@ namespace InterpreterGUI
                 }
                 
 
-                // --- 6. Clear canvas ---
+                // Clear canvas
                 PlotCanvas.Children.Clear();
                 double canvasWidth = PlotCanvas.ActualWidth;
                 double canvasHeight = PlotCanvas.ActualHeight;
@@ -340,10 +340,9 @@ namespace InterpreterGUI
             bool xStartSuccess = double.TryParse(xStartBox.Text, out var xs);
             bool xEndSuccess = double.TryParse(xEndBox.Text, out var xe);
 
-            view.XLeft = xStartSuccess ? xs : -10;
-            view.XRight = xEndSuccess ? xe : 10;
+            view.XLeft = -10; //xStartSuccess ? xs : -10;
+            view.XRight = 10; // xEndSuccess ? xe : 10;
 
-            // OPTIONAL: reset Y as well
             view.YBottom = -10;
             view.YTop = 10;
 

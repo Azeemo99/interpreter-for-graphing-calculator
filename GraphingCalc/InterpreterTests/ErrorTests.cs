@@ -9,15 +9,6 @@ namespace InterpreterTests
     public class ErrorTests
     {
         [Fact]
-        public void Division_By_Zero_Should_Fail()
-        {
-            Assert.Throws<Exception>(() =>
-            {
-                InterpreterCore.eval(InterpreterCore.symbolTable, "10/0");
-            });
-        }
-
-        [Fact]
         public void Division_By_Zero_Should_Report_Error()
         {
             var result = InterpreterCore.eval(InterpreterCore.symbolTable, "10/0");
