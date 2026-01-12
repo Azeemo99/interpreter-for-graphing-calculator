@@ -33,15 +33,15 @@ namespace InterpreterGUI
 
             if (s.Item1) // Success Case
             {
-                // 1. Update UI Content
+                // Update UI Content
                 ResultBox.Text = s.Item2;
                 symTable = s.Item3;
 
-                // 2. Toggle Visibility: Show Result, Hide Error
+                // Toggle Visibility - Show Result, Hide Error
                 ResultBox.Visibility = Visibility.Visible;
                 ErrorBox.Visibility = Visibility.Collapsed;
 
-                // 3. Sync with Plot Window
+                // Sync with Plot Window
                 foreach (Window w in this.OwnedWindows)
                 {
                     if (w is PlotWindow pw)
@@ -52,10 +52,10 @@ namespace InterpreterGUI
             }
             else // Error Case
             {
-                // 1. Update UI Content
+                // Update UI Content
                 ErrorBox.Text = s.Item2;
 
-                // 2. Toggle Visibility: Show Error, Hide Result
+                // Toggle Visibility: Show Error, Hide Result
                 ErrorBox.Visibility = Visibility.Visible;
                 ResultBox.Visibility = Visibility.Collapsed;
             }
@@ -78,7 +78,6 @@ namespace InterpreterGUI
 
         private void ResultBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            String s = "y = 1x + c";
 
         }
 
